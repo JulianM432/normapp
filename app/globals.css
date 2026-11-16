@@ -1,23 +1,155 @@
 @import "tailwindcss";
 
-/* [Tokens] */
-:root {
-  color-scheme: light;
-  --background: #fbf7f2;
-  --foreground: #2a1d16;
+@theme static {
+  --color-bg: #f6eee1;
+  --color-surface: #fff9f0;
+  --color-ink: #1f2420;
+  --color-muted: #454b45;
+  --color-line: #ddd2c0;
+  --color-btn: #2e5546;
+  --color-btn-press: #24463a;
+  --color-on-btn: #ffffff;
+  --color-wine: #6b2737;
+  --color-on-wine: #fbf4e8;
+  --color-blush: #f3d9c4;
+  --color-sage: #dce6d6;
+  --color-sage-deep: #7fa07a;
+  --color-coral: #f4d3c8;
+  --color-coral-deep: #e07a5f;
+  --color-mustard: #e9b949;
+  --color-accent: #8c5a2b;
+  --color-glaze-light: #9fb8a6;
+  --color-glaze-deep: #5f7e6c;
+  --color-focus: #1e3a8a;
+  --color-error: #8a1c12;
+  --color-error-bg: #fbeae7;
+
+  --font-display: var(--font-young-serif), Georgia, serif;
+  --font-body: var(--font-lexend), system-ui, sans-serif;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-price: 1.625rem;
+  --text-price--line-height: 1.2;
+  --text-piece: 1.5rem;
+  --text-piece--line-height: 1.2;
+  --text-title: 2.25rem;
+  --text-title--line-height: 1.05;
+  --text-hero: clamp(2.5rem, 9vw, 4rem);
+  --text-hero--line-height: 1;
+
+  --radius-card: 1.5rem;
+  --radius-btn: 999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+:root {
+  color-scheme: light;
 }
 
 html {
   font-size: 112.5%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    padding-inline: 1.5rem;
+    border-radius: var(--radius-btn);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      transform 120ms ease-out,
+      background-color 120ms ease-out;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .btn-primary {
+    background: var(--color-btn);
+    color: var(--color-on-btn);
+  }
+  .btn-primary:active {
+    background: var(--color-btn-press);
+  }
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 2px var(--color-btn);
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .btn svg {
+    width: 1.4em;
+    height: 1.4em;
+    flex: none;
+  }
+
+  .arch {
+    border-radius: 999px 999px var(--radius-card) var(--radius-card);
+    overflow: hidden;
+  }
+
+  .scallop-bottom {
+    --scallop: 1.25rem;
+    padding-bottom: calc(var(--scallop) * 2);
+    mask:
+      radial-gradient(var(--scallop) at 50% 100%, #0000 98%, #000) 50% 100% / calc(var(--scallop) * 2) var(--scallop) repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(100% - var(--scallop) + 1px) no-repeat;
+  }
+
+  .scallop-top {
+    --scallop: 1.25rem;
+    padding-top: calc(var(--scallop) * 2);
+    mask:
+      radial-gradient(var(--scallop) at 50% 0, #0000 98%, #000) 50% 0 / calc(var(--scallop) * 2) var(--scallop) repeat-x,
+      linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--scallop) + 1px) no-repeat;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
