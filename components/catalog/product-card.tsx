@@ -22,8 +22,8 @@ export function ProductCard({ product, contactUrl, eager }: Props) {
               fill
               sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
               className="object-cover"
-              preload={eager}
               loading={eager ? "eager" : "lazy"}
+              fetchPriority={eager ? "high" : undefined}
             />
           </span>
         </PhotoViewer>
