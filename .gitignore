@@ -45,3 +45,4 @@ next-env.d.ts
 
 # notas internas de planificación (no se versionan)
 /docs/
+.neon
