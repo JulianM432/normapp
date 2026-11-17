@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function PanelPage() {
   return (
-    <main className="mx-auto grid w-full grid-cols-1 max-w-[30rem] content-start px-4 pt-8 pb-36">
+    <main className="mx-auto grid w-full grid-cols-1 max-w-[30rem] content-start px-4 pt-[clamp(1rem,4dvh,2rem)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <Suspense fallback={<p className="text-center text-lg text-muted">Cargando…</p>}>
         <PanelGate />
       </Suspense>
@@ -39,7 +39,7 @@ async function PanelHome() {
   const { available, sold } = await getPanelProducts();
 
   return (
-    <div className="grid grid-cols-1 gap-8">
+    <div className="grid grid-cols-1 gap-8 pb-[calc(6.75rem+max(1rem,env(safe-area-inset-bottom)))]">
       <header className="grid grid-cols-1 gap-4">
         <h1 className="font-display text-title text-wine">Tus piezas</h1>
         <ShareButton url={env().NEXT_PUBLIC_SITE_URL} />

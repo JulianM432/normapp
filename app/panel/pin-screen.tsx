@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useEffect, useEffectEvent, useState } from "react";
 import { Delete } from "lucide-react";
 import { login } from "./actions";
+import { InstallHelp } from "./install-help";
 import { initialLoginState, type LoginState } from "./login-state";
 
 const PIN_LENGTH = 6;
@@ -48,6 +49,7 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
 
   const onKey = useEffectEvent((event: KeyboardEvent) => {
     if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (document.querySelector("dialog[open]")) return;
     if (/^\d$/.test(event.key)) press(event.key);
     else if (event.key === "Backspace") erase();
   });
@@ -60,7 +62,7 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
   const message = locked || !state.lockedUntil ? state.error : null;
 
   return (
-    <section className="grid grid-cols-1 gap-8">
+    <section className="grid grid-cols-1 gap-[clamp(1rem,3.5dvh,2rem)]">
       <header className="grid gap-2 text-center">
         <h1 className="font-display text-title text-wine">Hola, Norma</h1>
         <p className="text-xl">Escribí tu clave de 6 números</p>
@@ -78,7 +80,7 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
         {pending ? "Revisando tu clave" : `${digits.length} de ${PIN_LENGTH} números`}
       </p>
 
-      <div className="grid min-h-[4.5rem] place-items-center">
+      <div className="grid min-h-[clamp(3rem,8dvh,4.5rem)] place-items-center">
         {pending ? (
           <p className="text-lg font-semibold text-muted">Revisando…</p>
         ) : message ? (
@@ -102,12 +104,14 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
           type="button"
           onClick={erase}
           disabled={disabled || digits.length === 0}
-          className="btn btn-quiet min-h-[4.5rem] min-w-0 flex-col gap-1 px-1 text-base no-underline disabled:opacity-40"
+          className="btn btn-quiet min-h-[clamp(3.25rem,9dvh,4.5rem)] min-w-0 flex-col gap-1 px-1 text-base no-underline disabled:opacity-40"
         >
           <Delete aria-hidden="true" />
           Borrar
         </button>
       </div>
+
+      <InstallHelp />
     </section>
   );
 }
@@ -118,7 +122,7 @@ function PinKey({ children, onPress, disabled }: { children: string; onPress: ()
       type="button"
       onClick={onPress}
       disabled={disabled}
-      className="btn btn-secondary min-h-[4.5rem] min-w-0 rounded-card px-1 font-display text-title tabular-nums disabled:opacity-40"
+      className="btn btn-secondary min-h-[clamp(3.25rem,9dvh,4.5rem)] min-w-0 rounded-card px-1 font-display text-title tabular-nums disabled:opacity-40"
     >
       {children}
     </button>
