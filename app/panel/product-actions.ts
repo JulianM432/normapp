@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { db, products } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -75,11 +76,14 @@ export async function updateProduct(input: unknown): Promise<ActionResult> {
   }
 
   if (imageUrl && imageUrl !== existing.imageUrl) {
-    try {
-      await storage().remove(existing.imageUrl);
-    } catch (error) {
-      console.error("updateProduct: old image not removed", error);
-    }
+    const oldImageUrl = existing.imageUrl;
+    after(async () => {
+      try {
+        await storage().remove(oldImageUrl);
+      } catch (error) {
+        console.error("updateProduct: old image not removed", error);
+      }
+    });
   }
   return { ok: true, id };
 }
