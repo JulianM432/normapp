@@ -6,7 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { CircleCheck } from "lucide-react";
 import { BackLink, BottomBar, PhotoPicker, PriceField, TitleField } from "@/components/panel/controls";
 import { compressPhoto, uploadPhoto } from "@/lib/photo";
-import { productInputSchema } from "@/lib/product-input";
+import { productInputSchema, titleSchema } from "@/lib/product-input";
 import { setSold, updateProduct, type FieldErrors } from "../../product-actions";
 
 type Props = { id: string; title: string; price: number; imageUrl: string };
@@ -22,6 +22,9 @@ export function EditForm(product: Props) {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const busy = status !== "idle";
+  const cleanTitle = titleSchema.safeParse(title);
+  const dirty =
+    photo !== null || !cleanTitle.success || cleanTitle.data !== product.title || price !== String(product.price);
 
   useEffect(() => {
     if (!photo) return;
@@ -44,6 +47,7 @@ export function EditForm(product: Props) {
 
   async function save(event: FormEvent) {
     event.preventDefault();
+    if (!dirty) return;
     setError(null);
     const parsed = productInputSchema.safeParse({ title, price });
     if (!parsed.success) {
@@ -102,7 +106,15 @@ export function EditForm(product: Props) {
   }
 
   const saveLabel =
-    status === "uploading" ? "Subiendo foto…" : status === "saving" ? "Guardando…" : uploadedUrl ? "Reintentar" : "Guardar";
+    status === "uploading"
+      ? "Subiendo foto…"
+      : status === "saving"
+        ? "Guardando…"
+        : uploadedUrl
+          ? "Reintentar"
+          : dirty
+            ? "Guardar"
+            : "Sin cambios";
 
   return (
     <form onSubmit={save} className="grid grid-cols-1 gap-6" noValidate>
@@ -162,7 +174,7 @@ export function EditForm(product: Props) {
       </section>
 
       <BottomBar>
-        <button type="submit" disabled={busy} className="btn btn-primary min-h-16 w-full text-xl" aria-live="polite">
+        <button type="submit" disabled={busy || !dirty} className="btn btn-primary min-h-16 w-full text-xl" aria-live="polite">
           {saveLabel}
         </button>
       </BottomBar>
