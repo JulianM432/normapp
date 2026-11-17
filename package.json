@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "seed:reset": "tsx --env-file-if-exists=.env.local scripts/seed.ts --reset",
-    "pin:hash": "tsx scripts/pin-hash.ts"
+    "pin:hash": "tsx scripts/pin-hash.ts",
+    "icons": "tsx scripts/icons.ts"
   },
   "dependencies": {
     "@neon/config": "^1.14.0",

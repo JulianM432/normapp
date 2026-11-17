@@ -5,6 +5,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Cerámicas, lo de Norma",
   description: "Hecho con amor, y para vos.",
+  applicationName: "Normapp",
+  appleWebApp: {
+    capable: true,
+    title: "Normapp",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
