@@ -17,8 +17,9 @@ export function formatPhone(phone: string) {
   return `${area} ${rest.slice(0, rest.length - 4)}-${rest.slice(-4)}`;
 }
 
-export function whatsappUrl(phone: string) {
-  return `https://wa.me/${phone}`;
+export function whatsappUrl(phone: string, text?: string) {
+  const base = `https://wa.me/${phone}`;
+  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
 export function slugify(value: string) {

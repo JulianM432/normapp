@@ -48,7 +48,10 @@ export default async function Home() {
                 <li key={product.id} className="grid grid-cols-1">
                   <ProductCard
                     product={product}
-                    contactUrl={contactUrl}
+                    contactUrl={whatsappUrl(
+                      phone,
+                      `Hola, tenés disponible: ${product.title}?`,
+                    )}
                     eager={index === 0}
                   />
                 </li>
