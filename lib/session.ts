@@ -44,6 +44,10 @@ export async function startSession() {
   });
 }
 
+export async function endSession() {
+  (await cookies()).delete(COOKIE_NAME);
+}
+
 export async function hasSession() {
   await connection();
   const value = (await cookies()).get(COOKIE_NAME)?.value;
