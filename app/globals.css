@@ -41,7 +41,9 @@
   --text-hero--line-height: 1;
 
   --radius-card: 1.5rem;
-  --radius-btn: 999px;
+  --radius-btn: 2.25rem;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 :root {
@@ -64,6 +66,8 @@ h1,
 h2,
 h3 {
   text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 :focus-visible {
@@ -78,18 +82,22 @@ h3 {
     justify-content: center;
     gap: 0.6rem;
     min-height: 3.25rem;
-    padding-inline: 1.5rem;
+    padding-inline: min(1.5rem, 6vw);
+    padding-block: 0.5rem;
     border-radius: var(--radius-btn);
     font-weight: 600;
     font-size: var(--text-lg);
     line-height: 1.2;
     text-align: center;
+    text-wrap: balance;
+    hyphens: auto;
     text-decoration: none;
     cursor: pointer;
     user-select: none;
     transition:
-      transform 120ms ease-out,
-      background-color 120ms ease-out;
+      transform 160ms var(--ease-out),
+      background-color 160ms var(--ease-out),
+      opacity 160ms var(--ease-out);
   }
   .btn:active {
     transform: scale(0.97);
@@ -120,6 +128,52 @@ h3 {
     width: 1.4em;
     height: 1.4em;
     flex: none;
+  }
+
+  .enter-forward,
+  .enter-back,
+  .enter-pop {
+    transition:
+      opacity 220ms var(--ease-out),
+      transform 220ms var(--ease-out);
+  }
+  .enter-forward {
+    @starting-style {
+      opacity: 0;
+      transform: translateX(1.25rem);
+    }
+  }
+  .enter-back {
+    @starting-style {
+      opacity: 0;
+      transform: translateX(-1.25rem);
+    }
+  }
+  .enter-pop {
+    transition-duration: 250ms;
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  .viewer[open] {
+    transition: opacity 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  .viewer[open]::backdrop {
+    transition: opacity 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  .viewer[open] .viewer-photo {
+    transition: transform 220ms var(--ease-out);
+    @starting-style {
+      transform: scale(0.96);
+    }
   }
 
   .arch {

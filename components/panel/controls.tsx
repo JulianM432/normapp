@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useId, type ReactNode } from "react";
 import { ArrowLeft, Camera, Images } from "lucide-react";
 import { digitsOnly } from "@/lib/format";
-import { PRICE_MAX, TITLE_MAX } from "@/lib/product-input";
+import { PRICE_MAX, TITLE_MAX } from "@/lib/product-limits";
 
 const backClass = "btn btn-quiet -ml-3 justify-self-start px-3 no-underline";
 
@@ -45,7 +45,7 @@ export function PhotoPicker({
     if (file) onPick(file);
   };
   return (
-    <div className="grid gap-3">
+    <div className="grid grid-cols-1 gap-3">
       <label
         className={`btn ${quiet ? "btn-secondary" : "btn-primary"} hidden w-full cursor-pointer has-disabled:opacity-70 [@media(pointer:coarse)]:inline-flex`}
       >
@@ -64,11 +64,13 @@ export function PhotoPicker({
 
 function FieldShell({
   label,
+  heading,
   hint,
   error,
   children,
 }: {
   label: string;
+  heading?: boolean;
   hint?: string;
   error?: string;
   children: (ids: { input: string; describedBy: string | undefined }) => ReactNode;
@@ -78,10 +80,16 @@ function FieldShell({
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="grid gap-2">
-      <label htmlFor={id} className="font-display text-piece">
-        {label}
-      </label>
+    <div className="grid grid-cols-1 gap-2">
+      {heading ? (
+        <h1 className="font-display text-title text-wine">
+          <label htmlFor={id}>{label}</label>
+        </h1>
+      ) : (
+        <label htmlFor={id} className="font-display text-piece">
+          {label}
+        </label>
+      )}
       {hint && (
         <p id={hintId} className="text-lg text-muted">
           {hint}
@@ -106,15 +114,17 @@ export function TitleField({
   error,
   hint,
   autoFocus,
+  heading,
 }: {
   value: string;
   onChange: (value: string) => void;
   error?: string;
   hint?: string;
   autoFocus?: boolean;
+  heading?: boolean;
 }) {
   return (
-    <FieldShell label="Nombre de la pieza" hint={hint} error={error}>
+    <FieldShell label="Nombre de la pieza" hint={hint} error={error} heading={heading}>
       {({ input, describedBy }) => (
         <input
           id={input}
@@ -141,16 +151,18 @@ export function PriceField({
   error,
   hint,
   autoFocus,
+  heading,
 }: {
   value: string;
   onChange: (digits: string) => void;
   error?: string;
   hint?: string;
   autoFocus?: boolean;
+  heading?: boolean;
 }) {
   const shown = value ? Number(value).toLocaleString("es-AR") : "";
   return (
-    <FieldShell label="Precio en pesos" hint={hint} error={error}>
+    <FieldShell label="Precio en pesos" hint={hint} error={error} heading={heading}>
       {({ input, describedBy }) => (
         <div className="relative">
           <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-xl font-semibold">
@@ -178,7 +190,7 @@ export function PriceField({
 export function BottomBar({ children }: { children: ReactNode }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-bg/95 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
-      <div className="mx-auto grid w-full max-w-[30rem] gap-2">{children}</div>
+      <div className="mx-auto grid w-full max-w-[30rem] grid-cols-1 gap-2">{children}</div>
     </div>
   );
 }

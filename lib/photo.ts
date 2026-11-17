@@ -1,4 +1,3 @@
-import { upload } from "@vercel/blob/client";
 import { slugify } from "@/lib/format";
 import { IMAGE_PREFIX } from "@/lib/image-rules";
 
@@ -22,6 +21,7 @@ export async function compressPhoto(file: File): Promise<Blob> {
 
 export async function uploadPhoto(photo: Blob, title: string) {
   const pathname = `${IMAGE_PREFIX}${slugify(title) || "pieza"}.jpg`;
+  const { upload } = await import("@vercel/blob/client");
   const result = await upload(pathname, photo, {
     access: "public",
     handleUploadUrl: "/api/upload",

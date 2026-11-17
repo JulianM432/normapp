@@ -1,8 +1,7 @@
 import { z } from "zod";
+import { PRICE_MAX, PRICE_MIN, TITLE_MAX } from "./product-limits";
 
-export const TITLE_MAX = 60;
-export const PRICE_MIN = 1;
-export const PRICE_MAX = 10_000_000;
+export { PRICE_MAX, PRICE_MIN, TITLE_MAX };
 
 function capitalize(value: string) {
   return value.charAt(0).toLocaleUpperCase("es-AR") + value.slice(1);

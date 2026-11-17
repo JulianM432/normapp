@@ -60,17 +60,17 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
   const message = locked || !state.lockedUntil ? state.error : null;
 
   return (
-    <section className="grid gap-8">
+    <section className="grid grid-cols-1 gap-8">
       <header className="grid gap-2 text-center">
         <h1 className="font-display text-title text-wine">Hola, Norma</h1>
         <p className="text-xl">Escribí tu clave de 6 números</p>
       </header>
 
-      <div className="flex justify-center gap-3" aria-hidden="true">
+      <div className="mx-auto grid w-full grid-cols-1 max-w-[16rem] grid-cols-6 gap-[min(0.75rem,2vw)]" aria-hidden="true">
         {Array.from({ length: PIN_LENGTH }, (_, i) => (
           <span
             key={i}
-            className={`size-6 rounded-full border-[3px] border-wine ${i < digits.length ? "bg-wine" : "bg-transparent"}`}
+            className={`aspect-square w-full max-w-6 justify-self-center rounded-full border-[3px] border-wine ${i < digits.length ? "bg-wine" : "bg-transparent"}`}
           />
         ))}
       </div>
@@ -102,7 +102,7 @@ export function PinScreen({ initial = initialLoginState }: { initial?: LoginStat
           type="button"
           onClick={erase}
           disabled={disabled || digits.length === 0}
-          className="btn btn-quiet min-h-[4.5rem] flex-col gap-1 px-2 text-base no-underline disabled:opacity-40"
+          className="btn btn-quiet min-h-[4.5rem] min-w-0 flex-col gap-1 px-1 text-base no-underline disabled:opacity-40"
         >
           <Delete aria-hidden="true" />
           Borrar
@@ -118,7 +118,7 @@ function PinKey({ children, onPress, disabled }: { children: string; onPress: ()
       type="button"
       onClick={onPress}
       disabled={disabled}
-      className="btn btn-secondary min-h-[4.5rem] rounded-card font-display text-title tabular-nums disabled:opacity-40"
+      className="btn btn-secondary min-h-[4.5rem] min-w-0 rounded-card px-1 font-display text-title tabular-nums disabled:opacity-40"
     >
       {children}
     </button>

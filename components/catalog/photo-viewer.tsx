@@ -56,7 +56,7 @@ export function PhotoViewer({ src, alt, children }: Props) {
           event.preventDefault();
           hide();
         }}
-        className="m-0 h-dvh max-h-none w-dvw max-w-none bg-transparent p-0 backdrop:bg-black/95"
+        className="viewer m-0 h-dvh max-h-none w-dvw max-w-none bg-transparent p-0 backdrop:bg-black/95"
       >
         <div
           className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-3 p-3 sm:p-6"
@@ -72,7 +72,7 @@ export function PhotoViewer({ src, alt, children }: Props) {
           </button>
           {open && (
             <div
-              className="relative"
+              className="viewer-photo relative"
               onClick={(e) => e.target === e.currentTarget && hide()}
             >
               <Image

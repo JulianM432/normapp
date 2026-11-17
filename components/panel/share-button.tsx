@@ -33,7 +33,7 @@ export function ShareButton({ url }: { url: string }) {
   }
 
   return (
-    <div className="grid gap-2">
+    <div className="grid grid-cols-1 gap-2">
       <button type="button" onClick={share} className="btn btn-secondary w-full">
         <Share2 aria-hidden="true" />
         Compartir mi página

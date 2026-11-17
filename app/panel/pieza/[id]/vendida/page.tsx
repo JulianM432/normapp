@@ -33,7 +33,7 @@ async function Gate({ params }: { params: Promise<{ id: string }> }) {
   if (product.status !== "sold") redirect(`/panel/pieza/${product.id}`);
 
   return (
-    <section className="grid gap-8 text-center">
+    <section className="enter-pop grid gap-8 text-center">
       <div className="grid justify-items-center gap-3">
         <CircleCheck aria-hidden="true" className="size-20 text-btn" />
         <h1 className="font-display text-title text-wine">Marcada como vendida</h1>
