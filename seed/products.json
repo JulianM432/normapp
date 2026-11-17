@@ -1,0 +1,10 @@
+[
+  { "image": "taza-postcard.webp", "title": "Taza postcard Te amo", "price": 14000 },
+  { "image": "taza-lunares-mono.webp", "title": "Taza lunares con moño", "price": 13000 },
+  { "image": "taza-ositos.webp", "title": "Taza ositos", "price": 12000 },
+  { "image": "taza-flores-cerezas.webp", "title": "Taza flores y cerezas", "price": 12000 },
+  { "image": "vaso-corazones.webp", "title": "Vaso corazones", "price": 9000 },
+  { "image": "bowl-monos.webp", "title": "Bowl con moños", "price": 10000 },
+  { "image": "set-bowls-flores.webp", "title": "Set de dos bowls rosas", "price": 18000 },
+  { "image": "plato-ondas.webp", "title": "Plato ondas rosas", "price": 15000 }
+]
