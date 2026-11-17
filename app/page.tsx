@@ -50,7 +50,7 @@ export default async function Home() {
                     product={product}
                     contactUrl={whatsappUrl(
                       phone,
-                      `Hola, tenés disponible: ${product.title}?`,
+                      `Hola Norma, tenés disponible: ${product.title}?`,
                     )}
                     eager={index === 0}
                   />
