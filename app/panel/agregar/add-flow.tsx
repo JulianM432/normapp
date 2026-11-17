@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useEffectEvent, useLayoutEffect, useState, type FormEvent } from "react";
-import { CircleCheck, RotateCw } from "lucide-react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type FormEvent } from "react";
+import { RotateCw } from "lucide-react";
+import { BloomingPot } from "@/components/panel/blooming-pot";
 import { BackButton, BackLink, BottomBar, PhotoPicker, PriceField, TitleField } from "@/components/panel/controls";
 import { formatPrice } from "@/lib/format";
 import { compressPhoto, uploadPhoto } from "@/lib/photo";
@@ -17,6 +18,7 @@ type Status = "editing" | "uploading" | "saving" | "upload-error" | "save-error"
 
 const STEP_NAMES = { 1: "Foto", 2: "Nombre", 3: "Precio" } as const;
 const FORM_ID = "add-step";
+const SCROLL_DELAY_MS = 480;
 
 export function AddFlow() {
   const [run, setRun] = useState(0);
@@ -38,6 +40,12 @@ function AddFlowRun() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState<{ title: string; price: number } | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [budding, setBudding] = useState(false);
+  const [bloomed, setBloomed] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const touchedRef = useRef(false);
+  const onResultScreen = status !== "editing";
 
   const onPopState = useEffectEvent((event: PopStateEvent) => {
     if (status === "done") {
@@ -52,7 +60,7 @@ function AddFlowRun() {
     if (target === 1 || target === 2 || target === 3) {
       setDirection(target < step ? "back" : "forward");
       setStep(target);
-      setStatus("editing");
+      backToEditing();
     }
   });
 
@@ -64,9 +72,37 @@ function AddFlowRun() {
   }, []);
 
   useEffect(() => {
+    if (!onResultScreen) return;
+    touchedRef.current = false;
+    const touched = () => {
+      touchedRef.current = true;
+    };
+    const events = ["wheel", "touchmove", "keydown"] as const;
+    events.forEach((name) => window.addEventListener(name, touched, { passive: true }));
+    return () => events.forEach((name) => window.removeEventListener(name, touched));
+  }, [onResultScreen]);
+
+  useEffect(() => {
+    if (!bloomed) return;
+    const timer = setTimeout(() => {
+      const actions = actionsRef.current;
+      if (!actions || touchedRef.current) return;
+      if (actions.getBoundingClientRect().bottom <= window.innerHeight) return;
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      actions.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "end" });
+    }, SCROLL_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [bloomed]);
+
+  useEffect(() => {
     if (!photo) return;
     return () => URL.revokeObjectURL(photo.previewUrl);
   }, [photo]);
+
+  function backToEditing() {
+    setStatus("editing");
+    setBudding(false);
+  }
 
   function goTo(next: Step) {
     setDirection("forward");
@@ -117,8 +153,10 @@ function AddFlowRun() {
     let url = uploadedUrl;
     if (!url) {
       setStatus("uploading");
+      setProgress(0);
       try {
-        url = await uploadPhoto(photo.blob, title);
+        url = await uploadPhoto(photo.blob, title, setProgress);
+        setProgress(1);
         setUploadedUrl(url);
       } catch {
         setStatus("upload-error");
@@ -144,42 +182,21 @@ function AddFlowRun() {
     setStatus("done");
   }
 
-  if (status === "done" && saved && photo) {
+  if (onResultScreen && photo) {
+    const failed = status === "upload-error" || status === "save-error";
     return (
-      <section className="enter-pop grid gap-6 text-center">
-        <div className="grid justify-items-center gap-3">
-          <CircleCheck aria-hidden="true" className="size-20 text-btn" />
-          <h1 className="font-display text-title text-wine">¡Listo! Ya está en tu página</h1>
-        </div>
-        <div className="mx-auto grid w-full grid-cols-1 max-w-72 overflow-hidden rounded-card bg-surface text-left shadow-[0_1px_0_var(--color-line)]">
-          <div className="arch relative m-3 mb-0 aspect-[4/5] bg-sage">
-            <Image src={photo.previewUrl} alt="" fill unoptimized className="object-cover" />
-          </div>
-          <div className="grid gap-1 p-4">
-            <p className="font-display text-piece">{saved.title}</p>
-            <p className="text-price font-semibold tabular-nums">{formatPrice(saved.price)}</p>
-          </div>
-        </div>
-        <div className="grid gap-3">
-          <Link href="/" className="btn btn-primary w-full">
-            Ver mi página
-          </Link>
-          <Link href="/panel" replace className="btn btn-secondary w-full">
-            Volver a mis piezas
-          </Link>
-        </div>
-      </section>
-    );
-  }
-
-  if (status !== "editing") {
-    const busy = status === "uploading" || status === "saving";
-    return (
-      <section className="enter-pop grid gap-6 pt-10 text-center" aria-live="polite">
-        {busy ? (
-          <p className="font-display text-title text-wine">{status === "uploading" ? "Subiendo foto…" : "Guardando…"}</p>
-        ) : (
-          <>
+      <section className="enter-pop grid justify-items-center gap-6 pt-6 text-center" aria-live="polite">
+        <BloomingPot
+          progress={progress}
+          uploaded={uploadedUrl !== null}
+          saved={status === "done"}
+          paused={failed}
+          onBud={() => setBudding(true)}
+          onBloom={() => setBloomed(true)}
+          className={`h-auto transition-[width,opacity] duration-500 ease-out ${bloomed ? "w-32" : "w-48"} ${failed ? "opacity-50" : ""}`}
+        />
+        {failed ? (
+          <div className="grid w-full gap-6">
             <p role="alert" className="rounded-xl bg-error-bg p-4 text-xl font-semibold text-error">
               {status === "upload-error" ? "No se pudo subir la foto, probá de nuevo." : saveError}
             </p>
@@ -189,9 +206,36 @@ function AddFlowRun() {
               <RotateCw aria-hidden="true" />
               Reintentar
             </button>
-            <button type="button" onClick={() => setStatus("editing")} className="btn btn-quiet w-full">
+            <button type="button" onClick={backToEditing} className="btn btn-quiet w-full">
               Revisar los datos
             </button>
+          </div>
+        ) : bloomed ? (
+          <h1 className="enter-pop font-display text-title text-wine">¡Listo! Ya está en tu página</h1>
+        ) : (
+          <p key={budding ? "saving" : "uploading"} className="enter-pop font-display text-title text-wine">
+            {budding ? "Guardando…" : "Subiendo foto…"}
+          </p>
+        )}
+        {bloomed && saved && (
+          <>
+            <div className="enter-rise mx-auto grid w-full grid-cols-1 max-w-72 overflow-hidden rounded-card bg-surface text-left shadow-[0_1px_0_var(--color-line)] [--delay:60ms]">
+              <div className="arch relative m-3 mb-0 aspect-[4/5] bg-sage">
+                <Image src={photo.previewUrl} alt="" fill unoptimized className="object-cover" />
+              </div>
+              <div className="grid gap-1 p-4">
+                <p className="font-display text-piece">{saved.title}</p>
+                <p className="text-price font-semibold tabular-nums">{formatPrice(saved.price)}</p>
+              </div>
+            </div>
+            <div ref={actionsRef} className="enter-rise grid w-full scroll-mb-6 gap-3 [--delay:140ms]">
+              <Link href="/" className="btn btn-primary w-full">
+                Ver mi página
+              </Link>
+              <Link href="/panel" replace className="btn btn-secondary w-full">
+                Volver a mis piezas
+              </Link>
+            </div>
           </>
         )}
       </section>

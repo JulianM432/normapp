@@ -19,13 +19,14 @@ export async function compressPhoto(file: File): Promise<Blob> {
   });
 }
 
-export async function uploadPhoto(photo: Blob, title: string) {
+export async function uploadPhoto(photo: Blob, title: string, onProgress?: (fraction: number) => void) {
   const pathname = `${IMAGE_PREFIX}${slugify(title) || "pieza"}.jpg`;
   const { upload } = await import("@vercel/blob/client");
   const result = await upload(pathname, photo, {
     access: "public",
     handleUploadUrl: "/api/upload",
     contentType: "image/jpeg",
+    onUploadProgress: onProgress && (({ percentage }) => onProgress(percentage / 100)),
   });
   return result.url;
 }

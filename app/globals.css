@@ -44,6 +44,7 @@
   --radius-btn: 2.25rem;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root {
@@ -157,6 +158,89 @@ h3 {
     }
   }
 
+  .enter-rise {
+    transition:
+      opacity 280ms var(--ease-out),
+      transform 280ms var(--ease-out);
+    transition-delay: var(--delay, 0ms);
+    @starting-style {
+      opacity: 0;
+      transform: translateY(0.6rem);
+    }
+  }
+
+  .bloom-stem {
+    fill: none;
+    stroke: var(--color-glaze-deep);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: 1;
+  }
+  .bloom-vein {
+    fill: none;
+    stroke: var(--color-surface);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+  .bloom-leaf,
+  .bloom-bud,
+  .bloom-sway,
+  .bloom-petal,
+  .bloom-center {
+    transform-box: view-box;
+    transition: transform 440ms var(--ease-pop);
+  }
+  .bloom-leaf-a {
+    transform-origin: 100px 140px;
+    transform: scale(0) rotate(-25deg);
+  }
+  .bloom-leaf-b {
+    transform-origin: 101.5px 108px;
+    transform: scale(0) rotate(25deg);
+  }
+  [data-leaves="1"] .bloom-leaf-a,
+  [data-leaves="2"] .bloom-leaf-a,
+  [data-leaves="2"] .bloom-leaf-b {
+    transform: none;
+  }
+  .bloom-bud,
+  .bloom-sway,
+  .bloom-petal,
+  .bloom-center {
+    transform-origin: 0 0;
+  }
+  .bloom-bud,
+  .bloom-petal,
+  .bloom-center {
+    transform: scale(0);
+  }
+  [data-stage="bud"] .bloom-bud {
+    transform: none;
+  }
+  [data-stage] .bloom-sway {
+    animation: bloom-sway 1.8s ease-in-out infinite;
+  }
+  [data-stage="bloom"] .bloom-bud {
+    transition: transform 160ms ease-in;
+  }
+  .bloom-petal {
+    fill: var(--color-coral-deep);
+  }
+  .bloom-center {
+    fill: var(--color-mustard);
+  }
+  [data-stage="bloom"] .bloom-petal {
+    transform: none;
+    transition-duration: 480ms;
+    transition-delay: calc(80ms + var(--i) * 70ms);
+  }
+  [data-stage="bloom"] .bloom-center {
+    transform: none;
+    transition-delay: 460ms;
+  }
+
   .viewer[open] {
     transition: opacity 200ms var(--ease-out);
     @starting-style {
@@ -205,5 +289,19 @@ h3 {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@keyframes bloom-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(7deg);
   }
 }
