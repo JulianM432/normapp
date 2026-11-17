@@ -1,17 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { list } from "@vercel/blob";
 import sharp from "sharp";
 import { z } from "zod";
 import { createDb } from "../lib/db/client";
 import { slugify } from "../lib/format";
 import { loginAttempts, products } from "../lib/db/schema";
 import { productInputSchema } from "../lib/product-input";
-import { createVercelBlobStorage } from "../lib/storage";
+import { IMAGE_PREFIX } from "../lib/image-rules";
+import { createStorage } from "../lib/storage";
 
 const SEED_DIR = path.join(process.cwd(), "seed");
 const IMAGES_DIR = path.join(SEED_DIR, "images");
-const BLOB_PREFIX = "products/";
 
 const seedSchema = z.array(
   productInputSchema.extend({ image: z.string().min(1) }),
@@ -23,26 +22,10 @@ function requireEnv(name: string) {
   return value;
 }
 
-async function deleteAllBlobs(
-  storage: ReturnType<typeof createVercelBlobStorage>,
-  token: string,
-) {
-  let cursor: string | undefined;
-  let removed = 0;
-  do {
-    const page = await list({ prefix: BLOB_PREFIX, cursor, token });
-    await storage.remove(page.blobs.map((b) => b.url));
-    removed += page.blobs.length;
-    cursor = page.hasMore ? page.cursor : undefined;
-  } while (cursor);
-  return removed;
-}
-
 async function main() {
   const reset = process.argv.includes("--reset");
-  const token = requireEnv("BLOB_READ_WRITE_TOKEN");
   const db = createDb(requireEnv("DATABASE_URL"));
-  const storage = createVercelBlobStorage(token);
+  const storage = createStorage(process.env.BLOB_READ_WRITE_TOKEN || undefined);
 
   const items = seedSchema.parse(
     JSON.parse(readFileSync(path.join(SEED_DIR, "products.json"), "utf8")),
@@ -58,7 +41,7 @@ async function main() {
   if (reset) {
     await db.delete(products);
     await db.delete(loginAttempts);
-    const removed = await deleteAllBlobs(storage, token);
+    const removed = await storage.clear();
     console.log(`Reset: catálogo vacío, ${removed} fotos borradas`);
   }
 
@@ -88,7 +71,7 @@ async function main() {
       .toBuffer();
 
     const { url } = await storage.upload(
-      `${BLOB_PREFIX}${slugify(item.title)}.jpg`,
+      `${IMAGE_PREFIX}${slugify(item.title)}.jpg`,
       jpeg,
       "image/jpeg",
     );

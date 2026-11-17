@@ -8,7 +8,7 @@ import { env } from "@/lib/env";
 import { productInputSchema } from "@/lib/product-input";
 import { getProduct, PRODUCTS_TAG } from "@/lib/products";
 import { requireSession } from "@/lib/session";
-import { createVercelBlobStorage } from "@/lib/storage";
+import { createStorage } from "@/lib/storage";
 
 export type FieldErrors = { title?: string; price?: string };
 
@@ -23,7 +23,7 @@ const BAD_PHOTO = "La foto no se pudo usar. Elegí otra y probá de nuevo.";
 const FAILED = "No se pudo guardar. Revisá la conexión y probá de nuevo.";
 
 function storage() {
-  return createVercelBlobStorage(env().BLOB_READ_WRITE_TOKEN);
+  return createStorage(env().BLOB_READ_WRITE_TOKEN);
 }
 
 function invalid(error: z.ZodError): ActionResult {

@@ -21,6 +21,8 @@ export async function compressPhoto(file: File): Promise<Blob> {
 
 export async function uploadPhoto(photo: Blob, title: string, onProgress?: (fraction: number) => void) {
   const pathname = `${IMAGE_PREFIX}${slugify(title) || "pieza"}.jpg`;
+  const { mode } = (await (await fetch("/api/upload")).json()) as { mode: "blob" | "local" };
+  if (mode === "local") return uploadToDisk(pathname, photo, onProgress);
   const { upload } = await import("@vercel/blob/client");
   const result = await upload(pathname, photo, {
     access: "public",
@@ -29,4 +31,25 @@ export async function uploadPhoto(photo: Blob, title: string, onProgress?: (frac
     onUploadProgress: onProgress && (({ percentage }) => onProgress(percentage / 100)),
   });
   return result.url;
+}
+
+function uploadToDisk(pathname: string, photo: Blob, onProgress?: (fraction: number) => void) {
+  return new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/api/upload?pathname=${encodeURIComponent(pathname)}`);
+    xhr.setRequestHeader("Content-Type", photo.type || "image/jpeg");
+    xhr.responseType = "json";
+    if (onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) onProgress(event.loaded / event.total);
+      };
+    }
+    xhr.onload = () => {
+      const url = (xhr.response as { url?: string } | null)?.url;
+      if (xhr.status === 200 && url) resolve(url);
+      else reject(new Error("upload failed"));
+    };
+    xhr.onerror = () => reject(new Error("upload failed"));
+    xhr.send(photo);
+  });
 }
