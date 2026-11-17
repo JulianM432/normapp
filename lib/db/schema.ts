@@ -20,12 +20,16 @@ export const products = pgTable(
   (t) => [index("products_status_created_idx").on(t.status, t.createdAt.desc())],
 );
 
-export const loginAttempts = pgTable("login_attempts", {
-  key: text("key").primaryKey(),
-  failedCount: integer("failed_count").notNull().default(0),
-  windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
-  lockedUntil: timestamp("locked_until", { withTimezone: true }),
-});
+export const loginAttempts = pgTable(
+  "login_attempts",
+  {
+    key: text("key").primaryKey(),
+    failedCount: integer("failed_count").notNull().default(0),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  },
+  (t) => [index("login_attempts_window_start_idx").on(t.windowStart)],
+);
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;

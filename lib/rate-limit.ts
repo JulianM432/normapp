@@ -1,7 +1,8 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, ne, sql } from "drizzle-orm";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { db, loginAttempts } from "@/lib/db";
 
 export const IP_MAX_FAILURES = 5;
@@ -9,6 +10,9 @@ const IP_WINDOW = "15 minutes";
 const GLOBAL_KEY = "global";
 const GLOBAL_MAX_FAILURES = 50;
 const GLOBAL_WINDOW_MS = 60 * 60 * 1000;
+const STALE_MS = 24 * 60 * 60 * 1000;
+const PRUNE_PROBABILITY = 0.01;
+const PRUNE_BATCH = 1000;
 
 export async function clientKey() {
   const h = await headers();
@@ -36,7 +40,7 @@ export async function lockedUntil(key: string): Promise<Date | null> {
 }
 
 function bump(window: string, max: number | null) {
-  const expired = sql`${loginAttempts.windowStart} < now() - interval '${sql.raw(window)}'`;
+  const expired = sql`${loginAttempts.windowStart} < now() - ${window}::interval`;
   const count = sql`case when ${expired} then 1 else ${loginAttempts.failedCount} + 1 end`;
   return {
     failedCount: count,
@@ -44,7 +48,7 @@ function bump(window: string, max: number | null) {
     lockedUntil:
       max === null
         ? sql`null`
-        : sql`case when ${count} >= ${max} then now() + interval '${sql.raw(window)}' else null end`,
+        : sql`case when ${count} >= ${max} then now() + ${window}::interval else null end`,
   };
 }
 
@@ -60,9 +64,19 @@ export async function recordFailure(key: string) {
       .values({ key: GLOBAL_KEY, failedCount: 1 })
       .onConflictDoUpdate({ target: loginAttempts.key, set: bump("1 hour", null) }),
   ]);
+  if (Math.random() < PRUNE_PROBABILITY) after(pruneStale);
   const row = ipRows[0];
   if (!row) throw new Error("No se pudo registrar el intento");
   return { failedCount: row.failedCount, lockedUntil: row.lockedUntil };
+}
+
+async function pruneStale() {
+  const stale = db()
+    .select({ key: loginAttempts.key })
+    .from(loginAttempts)
+    .where(and(ne(loginAttempts.key, GLOBAL_KEY), lt(loginAttempts.windowStart, new Date(Date.now() - STALE_MS))))
+    .limit(PRUNE_BATCH);
+  await db().delete(loginAttempts).where(inArray(loginAttempts.key, stale));
 }
 
 export async function clearFailures(key: string) {
