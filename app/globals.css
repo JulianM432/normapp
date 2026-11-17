@@ -41,7 +41,7 @@
   --text-hero--line-height: 1;
 
   --radius-card: 1.5rem;
-  --radius-btn: 999px;
+  --radius-btn: 2.25rem;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -83,11 +83,14 @@ h3 {
     gap: 0.6rem;
     min-height: 3.25rem;
     padding-inline: min(1.5rem, 6vw);
+    padding-block: 0.5rem;
     border-radius: var(--radius-btn);
     font-weight: 600;
     font-size: var(--text-lg);
     line-height: 1.2;
     text-align: center;
+    text-wrap: balance;
+    hyphens: auto;
     text-decoration: none;
     cursor: pointer;
     user-select: none;

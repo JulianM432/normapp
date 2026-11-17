@@ -54,7 +54,7 @@ async function PanelHome() {
                 className="flex flex-wrap items-center gap-4 rounded-card bg-surface p-3 shadow-[0_1px_0_var(--color-line)] active:scale-[0.98] motion-safe:transition-transform"
               >
                 <Thumb src={product.imageUrl} eager={index < 2} />
-                <span className="grid min-w-0 gap-1">
+                <span className="grid min-w-0 flex-1 basis-[10rem] gap-1">
                   <span className="font-display text-piece [overflow-wrap:anywhere]">{product.title}</span>
                   <span className="text-xl font-semibold tabular-nums">{formatPrice(product.price)}</span>
                   <span className="inline-flex items-center gap-2 text-muted [overflow-wrap:anywhere]">
@@ -83,7 +83,7 @@ async function PanelHome() {
               <li key={product.id} className="grid gap-3 rounded-card bg-surface p-3">
                 <div className="flex flex-wrap items-center gap-4">
                   <Thumb src={product.imageUrl} />
-                  <span className="grid min-w-0 gap-1">
+                  <span className="grid min-w-0 flex-1 basis-[10rem] gap-1">
                     <span className="font-display text-piece [overflow-wrap:anywhere]">{product.title}</span>
                     <span className="text-xl font-semibold tabular-nums">{formatPrice(product.price)}</span>
                     <span className="text-muted">Vendida</span>
