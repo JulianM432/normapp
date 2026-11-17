@@ -1,13 +1,14 @@
 import { del, put } from "@vercel/blob";
+import { IMAGE_PREFIX } from "@/lib/image-rules";
 
 export type StoredImage = { url: string };
 
 export interface ImageStorage {
   upload(pathname: string, body: Buffer | Blob, contentType: string): Promise<StoredImage>;
   remove(url: string | string[]): Promise<void>;
+  owns(url: string): boolean;
 }
 
-export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export function createVercelBlobStorage(token?: string): ImageStorage {
   return {
@@ -24,6 +25,18 @@ export function createVercelBlobStorage(token?: string): ImageStorage {
     async remove(url) {
       if (Array.isArray(url) && url.length === 0) return;
       await del(url, { token });
+    },
+    owns(url) {
+      try {
+        const parsed = new URL(url);
+        return (
+          parsed.protocol === "https:" &&
+          parsed.hostname.endsWith(".public.blob.vercel-storage.com") &&
+          parsed.pathname.startsWith(`/${IMAGE_PREFIX}`)
+        );
+      } catch {
+        return false;
+      }
     },
   };
 }

@@ -20,3 +20,16 @@ export function formatPhone(phone: string) {
 export function whatsappUrl(phone: string) {
   return `https://wa.me/${phone}`;
 }
+
+export function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}

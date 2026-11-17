@@ -4,6 +4,7 @@ import { list } from "@vercel/blob";
 import sharp from "sharp";
 import { z } from "zod";
 import { createDb } from "../lib/db/client";
+import { slugify } from "../lib/format";
 import { loginAttempts, products } from "../lib/db/schema";
 import { productInputSchema } from "../lib/product-input";
 import { createVercelBlobStorage } from "../lib/storage";
@@ -20,15 +21,6 @@ function requireEnv(name: string) {
   const value = process.env[name];
   if (!value) throw new Error(`Falta ${name} en .env.local`);
   return value;
-}
-
-function slugify(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 async function deleteAllBlobs(
