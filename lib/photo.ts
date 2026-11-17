@@ -1,5 +1,5 @@
 import { slugify } from "@/lib/format";
-import { IMAGE_PREFIX } from "@/lib/image-rules";
+import { IMAGE_PREFIX, type UploadMode } from "@/lib/image-rules";
 
 const MAX_SIDE = 1600;
 const QUALITY = 0.82;
@@ -19,11 +19,13 @@ export async function compressPhoto(file: File): Promise<Blob> {
   });
 }
 
-export async function uploadPhoto(photo: Blob, title: string, onProgress?: (fraction: number) => void) {
+export async function uploadPhoto(
+  mode: UploadMode,
+  photo: Blob,
+  title: string,
+  onProgress?: (fraction: number) => void,
+) {
   const pathname = `${IMAGE_PREFIX}${slugify(title) || "pieza"}.jpg`;
-  const response = await fetch("/api/upload");
-  if (!response.ok) throw new Error("upload mode unavailable");
-  const { mode } = (await response.json()) as { mode: "blob" | "local" };
   if (mode === "local") return uploadToDisk(pathname, photo, onProgress);
   const { upload } = await import("@vercel/blob/client");
   const result = await upload(pathname, photo, {

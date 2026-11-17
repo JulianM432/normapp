@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { CircleCheck } from "lucide-react";
 import { BackLink, BottomBar, PhotoPicker, PriceField, TitleField } from "@/components/panel/controls";
+import type { UploadMode } from "@/lib/image-rules";
 import { compressPhoto, uploadPhoto } from "@/lib/photo";
 import { productInputSchema, titleSchema } from "@/lib/product-input";
 import { setSold, updateProduct, type FieldErrors } from "../../product-actions";
 
-type Props = { id: string; title: string; price: number; imageUrl: string };
+type Props = { id: string; title: string; price: number; imageUrl: string; uploadMode: UploadMode };
 type Status = "idle" | "preparing" | "uploading" | "saving" | "selling";
 
 export function EditForm(product: Props) {
@@ -64,7 +65,7 @@ export function EditForm(product: Props) {
     if (photo && !imageUrl) {
       setStatus("uploading");
       try {
-        imageUrl = await uploadPhoto(photo.blob, parsed.data.title);
+        imageUrl = await uploadPhoto(product.uploadMode, photo.blob, parsed.data.title);
         setUploadedUrl(imageUrl);
       } catch {
         setError("No se pudo subir la foto, probá de nuevo.");

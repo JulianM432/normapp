@@ -1,17 +1,11 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
-import { connection } from "next/server";
 import { env } from "@/lib/env";
 import { hasSession } from "@/lib/session";
 import { ALLOWED_IMAGE_TYPES, IMAGE_PREFIX, MAX_IMAGE_BYTES } from "@/lib/image-rules";
 import { createLocalStorage } from "@/lib/storage";
 
 const UPLOAD_FAILED = { error: "No se pudo subir la foto" };
-
-export async function GET() {
-  await connection();
-  return NextResponse.json({ mode: env().BLOB_READ_WRITE_TOKEN ? "blob" : "local" });
-}
 
 export async function POST(request: Request) {
   const token = env().BLOB_READ_WRITE_TOKEN;

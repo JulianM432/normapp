@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import type { UploadMode } from "@/lib/image-rules";
 
 const schema = z.object({
   DATABASE_URL: z.url(),
@@ -30,4 +31,8 @@ export function env(): Env {
     cached = parsed.data;
   }
   return cached;
+}
+
+export function uploadMode(): UploadMode {
+  return env().BLOB_READ_WRITE_TOKEN ? "blob" : "local";
 }

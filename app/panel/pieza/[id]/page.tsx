@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
+import { uploadMode } from "@/lib/env";
 import { getProduct } from "@/lib/products";
 import { requireSession } from "@/lib/session";
 import { EditForm } from "./edit-form";
@@ -35,6 +36,7 @@ async function Gate({ params }: { params: Promise<{ id: string }> }) {
       title={product.title}
       price={product.price}
       imageUrl={product.imageUrl}
+      uploadMode={uploadMode()}
     />
   );
 }

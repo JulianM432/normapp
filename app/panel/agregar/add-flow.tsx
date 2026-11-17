@@ -8,6 +8,7 @@ import { RotateCw } from "lucide-react";
 import { BloomingPot } from "@/components/panel/blooming-pot";
 import { BackButton, BackLink, BottomBar, PhotoPicker, PriceField, TitleField } from "@/components/panel/controls";
 import { formatPrice } from "@/lib/format";
+import type { UploadMode } from "@/lib/image-rules";
 import { compressPhoto, uploadPhoto } from "@/lib/photo";
 import { priceSchema, titleSchema } from "@/lib/product-input";
 import { createProduct, type FieldErrors } from "../product-actions";
@@ -20,13 +21,13 @@ const STEP_NAMES = { 1: "Foto", 2: "Nombre", 3: "Precio" } as const;
 const FORM_ID = "add-step";
 const SCROLL_DELAY_MS = 480;
 
-export function AddFlow() {
+export function AddFlow({ uploadMode }: { uploadMode: UploadMode }) {
   const [run, setRun] = useState(0);
   useLayoutEffect(() => () => setRun((n) => n + 1), []);
-  return <AddFlowRun key={run} />;
+  return <AddFlowRun key={run} uploadMode={uploadMode} />;
 }
 
-function AddFlowRun() {
+function AddFlowRun({ uploadMode }: { uploadMode: UploadMode }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [direction, setDirection] = useState<"none" | "forward" | "back">("none");
@@ -155,7 +156,7 @@ function AddFlowRun() {
       setStatus("uploading");
       setProgress(0);
       try {
-        url = await uploadPhoto(photo.blob, title, setProgress);
+        url = await uploadPhoto(uploadMode, photo.blob, title, setProgress);
         setProgress(1);
         setUploadedUrl(url);
       } catch {
