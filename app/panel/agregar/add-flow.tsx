@@ -16,6 +16,7 @@ type Photo = { blob: Blob; previewUrl: string };
 type Status = "editing" | "uploading" | "saving" | "upload-error" | "save-error" | "done";
 
 const STEP_NAMES = { 1: "Foto", 2: "Nombre", 3: "Precio" } as const;
+const FORM_ID = "add-step";
 
 export function AddFlow() {
   const [run, setRun] = useState(0);
@@ -26,6 +27,7 @@ export function AddFlow() {
 function AddFlowRun() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
+  const [direction, setDirection] = useState<"none" | "forward" | "back">("none");
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [preparing, setPreparing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -48,6 +50,7 @@ function AddFlowRun() {
     }
     const target = (event.state as { addStep?: Step } | null)?.addStep;
     if (target === 1 || target === 2 || target === 3) {
+      setDirection(target < step ? "back" : "forward");
       setStep(target);
       setStatus("editing");
     }
@@ -66,6 +69,7 @@ function AddFlowRun() {
   }, [photo]);
 
   function goTo(next: Step) {
+    setDirection("forward");
     history.pushState({ ...history.state, addStep: next }, "");
     setStep(next);
   }
@@ -142,12 +146,12 @@ function AddFlowRun() {
 
   if (status === "done" && saved && photo) {
     return (
-      <section className="grid gap-6 text-center">
+      <section className="enter-pop grid gap-6 text-center">
         <div className="grid justify-items-center gap-3">
           <CircleCheck aria-hidden="true" className="size-20 text-btn" />
           <h1 className="font-display text-title text-wine">¡Listo! Ya está en tu página</h1>
         </div>
-        <div className="mx-auto grid w-full max-w-72 overflow-hidden rounded-card bg-surface text-left shadow-[0_1px_0_var(--color-line)]">
+        <div className="mx-auto grid w-full grid-cols-1 max-w-72 overflow-hidden rounded-card bg-surface text-left shadow-[0_1px_0_var(--color-line)]">
           <div className="arch relative m-3 mb-0 aspect-[4/5] bg-sage">
             <Image src={photo.previewUrl} alt="" fill unoptimized className="object-cover" />
           </div>
@@ -171,7 +175,7 @@ function AddFlowRun() {
   if (status !== "editing") {
     const busy = status === "uploading" || status === "saving";
     return (
-      <section className="grid gap-6 pt-10 text-center" aria-live="polite">
+      <section className="enter-pop grid gap-6 pt-10 text-center" aria-live="polite">
         {busy ? (
           <p className="font-display text-title text-wine">{status === "uploading" ? "Subiendo foto…" : "Guardando…"}</p>
         ) : (
@@ -195,7 +199,7 @@ function AddFlowRun() {
   }
 
   return (
-    <section className="grid gap-6">
+    <section className="grid grid-cols-1 gap-6">
       <div className="grid gap-3">
         {step === 1 ? <BackLink href="/panel" /> : <BackButton onBack={() => history.back()} />}
         <p className="text-xl font-semibold">
@@ -203,80 +207,85 @@ function AddFlowRun() {
         </p>
         <div className="grid grid-cols-3 gap-2" aria-hidden="true">
           {([1, 2, 3] as const).map((n) => (
-            <span key={n} className={`h-2.5 rounded-full ${n <= step ? "bg-btn" : "bg-line"}`} />
+            <span
+              key={n}
+              className={`h-2.5 rounded-full transition-colors duration-200 ${n <= step ? "bg-btn" : "bg-line"}`}
+            />
           ))}
         </div>
       </div>
 
-      {step === 1 && (
-        <div className="grid gap-5">
-          <h1 className="font-display text-title text-wine">{photo ? "¿Usamos esta foto?" : "Elegí una foto"}</h1>
-          {photo ? (
-            <>
+      <div key={step} className={direction === "none" ? undefined : direction === "back" ? "enter-back" : "enter-forward"}>
+        {step === 1 && (
+          <div className="grid gap-5">
+            <h1 className="font-display text-title text-wine">{photo ? "¿Usamos esta foto?" : "Elegí una foto"}</h1>
+            {photo ? (
               <div className="arch relative aspect-[4/5] bg-sage">
                 <Image src={photo.previewUrl} alt="Vista previa de la foto" fill unoptimized className="object-cover" />
               </div>
-              <BottomBar>
-                <button type="button" onClick={() => goTo(2)} className="btn btn-primary w-full">
-                  Usar esta foto
-                </button>
-                <button type="button" onClick={() => setPhoto(null)} className="btn btn-secondary w-full">
-                  Elegir otra
-                </button>
-              </BottomBar>
-            </>
-          ) : (
-            <>
-              <PhotoPicker onPick={pickPhoto} disabled={preparing} />
-              {preparing && <p className="text-center text-xl font-semibold text-muted">Preparando la foto…</p>}
-              {photoError && (
-                <p role="alert" className="rounded-xl bg-error-bg p-3 text-lg font-semibold text-error">
-                  {photoError}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      )}
+            ) : (
+              <>
+                <PhotoPicker onPick={pickPhoto} disabled={preparing} />
+                {preparing && <p className="text-center text-xl font-semibold text-muted">Preparando la foto…</p>}
+                {photoError && (
+                  <p role="alert" className="rounded-xl bg-error-bg p-3 text-lg font-semibold text-error">
+                    {photoError}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
-      {step === 2 && (
-        <form onSubmit={submitTitle} className="grid gap-5" noValidate>
-          <TitleField
-            value={title}
-            onChange={(value) => {
-              setTitle(value);
-              setErrors({});
-            }}
-            error={errors.title}
-            hint="Así te la van a pedir por WhatsApp."
-            autoFocus
-          />
-          <BottomBar>
-            <button type="submit" className="btn btn-primary w-full">
-              Siguiente
-            </button>
-          </BottomBar>
-        </form>
-      )}
+        {step === 2 && (
+          <form id={FORM_ID} onSubmit={submitTitle} className="grid gap-5" noValidate>
+            <TitleField
+              value={title}
+              onChange={(value) => {
+                setTitle(value);
+                setErrors({});
+              }}
+              error={errors.title}
+              hint="Así te la van a pedir por WhatsApp."
+              autoFocus
+              heading
+            />
+          </form>
+        )}
 
-      {step === 3 && (
-        <form onSubmit={submitPrice} className="grid gap-5" noValidate>
-          <PriceField
-            value={price}
-            onChange={(value) => {
-              setPrice(value);
-              setErrors({});
-            }}
-            error={errors.price}
-            hint="Sin centavos."
-            autoFocus
-          />
-          <BottomBar>
-            <button type="submit" className="btn btn-primary w-full">
-              Guardar
-            </button>
-          </BottomBar>
-        </form>
+        {step === 3 && (
+          <form id={FORM_ID} onSubmit={submitPrice} className="grid gap-5" noValidate>
+            <PriceField
+              value={price}
+              onChange={(value) => {
+                setPrice(value);
+                setErrors({});
+              }}
+              error={errors.price}
+              hint="Sin centavos."
+              autoFocus
+              heading
+            />
+          </form>
+        )}
+      </div>
+
+      {step === 1 && photo && (
+        <BottomBar>
+          <button type="button" onClick={() => goTo(2)} className="btn btn-primary w-full">
+            Usar esta foto
+          </button>
+          <button type="button" onClick={() => setPhoto(null)} className="btn btn-secondary w-full">
+            Elegir otra
+          </button>
+        </BottomBar>
+      )}
+      {step > 1 && (
+        <BottomBar>
+          <button type="submit" form={FORM_ID} className="btn btn-primary w-full">
+            {step === 2 ? "Siguiente" : "Guardar"}
+          </button>
+        </BottomBar>
       )}
     </section>
   );

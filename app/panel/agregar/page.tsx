@@ -10,8 +10,9 @@ export const metadata: Metadata = {
 
 export default function AddPage() {
   return (
-    <main className="mx-auto grid w-full max-w-[30rem] content-start px-4 pt-4 pb-44">
-      <Suspense fallback={<p className="text-center text-lg text-muted">Cargando…</p>}>
+    <main className="mx-auto grid w-full grid-cols-1 max-w-[30rem] content-start px-4 pt-4 pb-44">
+      <AddFlow />
+      <Suspense fallback={null}>
         <Gate />
       </Suspense>
     </main>
@@ -20,5 +21,5 @@ export default function AddPage() {
 
 async function Gate() {
   await requireSession();
-  return <AddFlow />;
+  return null;
 }

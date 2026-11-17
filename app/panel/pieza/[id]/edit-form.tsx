@@ -105,16 +105,24 @@ export function EditForm(product: Props) {
     status === "uploading" ? "Subiendo foto…" : status === "saving" ? "Guardando…" : uploadedUrl ? "Reintentar" : "Guardar";
 
   return (
-    <form onSubmit={save} className="grid gap-6" noValidate>
+    <form onSubmit={save} className="grid grid-cols-1 gap-6" noValidate>
       <BackLink href="/panel" />
       <h1 className="font-display text-title text-wine">Cambiar pieza</h1>
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <div className="arch relative aspect-[4/5] bg-sage">
           {photo ? (
             <Image src={photo.previewUrl} alt="Foto nueva" fill unoptimized className="object-cover" />
           ) : (
-            <Image src={product.imageUrl} alt={product.title} fill sizes="(min-width: 480px) 448px, 100vw" className="object-cover" />
+            <Image
+              src={product.imageUrl}
+              alt={product.title}
+              fill
+              sizes="(min-width: 480px) 448px, 100vw"
+              className="object-cover"
+              loading="eager"
+              fetchPriority="high"
+            />
           )}
         </div>
         <PhotoPicker onPick={pickPhoto} disabled={busy} cameraLabel="Sacar otra foto" galleryLabel="Cambiar foto" quiet />
@@ -144,7 +152,7 @@ export function EditForm(product: Props) {
         </p>
       )}
 
-      <section className="mt-6 grid gap-3 border-t-2 border-dashed border-line pt-8">
+      <section className="mt-6 grid grid-cols-1 gap-3 border-t-2 border-dashed border-line pt-8">
         <h2 className="font-display text-piece">¿Ya la vendiste?</h2>
         <p className="text-lg text-muted">Deja de aparecer en tu página. Podés volver a ponerla en venta cuando quieras.</p>
         <button type="button" onClick={markSold} disabled={busy} className="btn btn-secondary w-full">

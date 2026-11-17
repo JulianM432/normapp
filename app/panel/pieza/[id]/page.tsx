@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function EditPage({ params }: PageProps<"/panel/pieza/[id]">) {
   return (
-    <main className="mx-auto grid w-full max-w-[30rem] content-start px-4 pt-4 pb-36">
+    <main className="mx-auto grid w-full grid-cols-1 max-w-[30rem] content-start px-4 pt-4 pb-36">
       <Suspense fallback={<p className="text-center text-lg text-muted">Cargando…</p>}>
         <Gate params={params} />
       </Suspense>

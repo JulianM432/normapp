@@ -2,6 +2,7 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { env } from "@/lib/env";
 
 const COOKIE_NAME = "norma_session";
@@ -44,6 +45,7 @@ export async function startSession() {
 }
 
 export async function hasSession() {
+  await connection();
   const value = (await cookies()).get(COOKIE_NAME)?.value;
   if (!value) return false;
   const payload = decode(value);
