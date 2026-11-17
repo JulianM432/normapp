@@ -1,3 +1,4 @@
+import { LiveRefresh } from "@/components/catalog/live-refresh";
 import { ProductCard } from "@/components/catalog/product-card";
 import { Flower, Leaf } from "@/components/decor/flower";
 import { SiteFooter } from "@/components/catalog/site-footer";
@@ -70,6 +71,7 @@ export default async function Home() {
         )}
       </main>
       <SiteFooter phone={phone} contactUrl={contactUrl} />
+      <LiveRefresh />
     </>
   );
 }
